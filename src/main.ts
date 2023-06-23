@@ -15,8 +15,14 @@ scene.add(cube);
 
 camera.position.z = 5;
 
+// Function that is being called on every frame
 function animate() {
 	requestAnimationFrame( animate );
+
+	cube.rotation.x += 0.01;
+	cube.rotation.y += 0.01;
+	cube.rotation.z += 0.01;
+
 	renderer.render( scene, camera );
 }
 
@@ -25,11 +31,14 @@ if (WebGL.isWebGLAvailable()) {
 	animate();
 } else {
 	const error = WebGL.getWebGLErrorMessage();
-	const message: string = error.textContent ? error.textContent : "An error occurred";
-	document.getElementById("main")!.innerHTML = `
-		<div id="error">
-			<h1>Oops ...</h1>
-			<p>${message}</p>
-		</div>
-	`;
+	
+	let errorDiv = document.createElement("div");
+	errorDiv.id = "error";
+	const errorH1 = document.createElement("h1");
+	errorH1.innerText = "Oops ...";
+	errorDiv.appendChild(errorH1);
+	errorDiv.appendChild(error);
+
+	document.body.textContent = ""; // Remove render first
+	document.body.appendChild(errorDiv);
 }
