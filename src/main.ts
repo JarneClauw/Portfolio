@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import WebGL from "three/addons/capabilities/WebGL.js";
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -18,4 +19,17 @@ function animate() {
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
 }
-animate();
+
+// Check if WebGL is available
+if (WebGL.isWebGLAvailable()) {
+	animate();
+} else {
+	const error = WebGL.getWebGLErrorMessage();
+	const message: string = error.textContent ? error.textContent : "An error occurred";
+	document.getElementById("main")!.innerHTML = `
+		<div id="error">
+			<h1>Oops ...</h1>
+			<p>${message}</p>
+		</div>
+	`;
+}
