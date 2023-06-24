@@ -1,5 +1,6 @@
 {
     "camera": {
+        "fov": 75,
         "positionX": 0,
         "positionY": 0,
         "positionZ": 5

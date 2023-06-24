@@ -48,7 +48,7 @@ function main() {
 		const scene = new THREE.Scene();
 
 		// Camera
-		const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+		const camera = new THREE.PerspectiveCamera(Config.camera.fov, window.innerWidth/window.innerHeight, 0.1, 1000);
 		camera.position.set(Config.camera.positionX, Config.camera.positionY, Config.camera.positionZ);
 
 		// Renderer
