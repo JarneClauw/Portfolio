@@ -2,11 +2,14 @@ import * as THREE from "three";
 import WebGL from "three/addons/capabilities/WebGL.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { addRandomStars } from "./lib/stars";
+import Config from "./config.json";
 
 // Helpers when developing. Returns an update function that updates the helpers every frame
 function helpers(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera): () => void {
+	const config = Config.helpers;
+	
 	// Show a grid
-	const gridHelper = new THREE.GridHelper(200, 50);
+	const gridHelper = new THREE.GridHelper(config.gridSize, config.gridSegments);
 	scene.add(gridHelper);
 
 	// Zoom, pan, ...
@@ -20,7 +23,8 @@ function helpers(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THRE
 
 // Everything to do with lights
 function lights(scene: THREE.Scene) {
-	const ambientLight = new THREE.AmbientLight(0xffffff);
+	const config = Config.lights;
+	const ambientLight = new THREE.AmbientLight(config.color);
 	scene.add(ambientLight);
 }
 
@@ -45,7 +49,7 @@ function main() {
 
 		// Camera
 		const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-		camera.position.z = 5;
+		camera.position.set(Config.camera.positionX, Config.camera.positionY, Config.camera.positionZ);
 
 		// Renderer
 		const renderer = new THREE.WebGLRenderer();
@@ -57,7 +61,7 @@ function main() {
 
 		// Adding objects to the scene
 		lights(scene);
-		addRandomStars(scene, 200);
+		addRandomStars(scene);
 
 		// Start animating
 		animate(renderer, scene, camera, updateHelpers);

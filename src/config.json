@@ -1,0 +1,21 @@
+{
+    "camera": {
+        "positionX": 0,
+        "positionY": 0,
+        "positionZ": 5
+    },
+    "helpers": {
+        "gridSize": 200,
+        "gridSegments": 50
+    },
+    "lights": {
+        "color": "0xffffff"
+    },
+    "stars": {
+        "radius": 0.25,
+        "segments": 24,
+        "color": "0xffffff",
+        "count": 200,
+        "floatSpread": 100
+    }
+}
