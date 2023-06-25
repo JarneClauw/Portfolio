@@ -1,8 +1,11 @@
 {
+    "renderer": {
+        "useHDDPI": true
+    },
     "camera": {
         "fov": 75,
-        "positionX": 0,
-        "positionY": 0,
+        "positionX": 5,
+        "positionY": 5,
         "positionZ": 5
     },
     "helpers": {

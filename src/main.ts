@@ -1,70 +1,109 @@
 import * as THREE from "three";
 import WebGL from "three/addons/capabilities/WebGL.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { addRandomStars } from "./lib/stars";
+import RandomStars from "./lib/stars";
+import lights from "./lib/lights";
 import Config from "./config.json";
 
+// Initialize the necessary objects and functions
+function init() {
+	// Renderer
+	const canvas = document.getElementById("canvas")!;
+	const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
+
+	// Scene
+	const scene = new THREE.Scene();
+
+	// Camera
+	const camera = new THREE.PerspectiveCamera(Config.camera.fov, window.innerWidth/window.innerHeight, 0.1, 1000);
+	camera.position.set(Config.camera.positionX, Config.camera.positionY, Config.camera.positionZ);
+
+	// Update the renderer and camera when the screen gets resized, also rerender the frame
+	const updateRenderer = () => {
+		const canvas = renderer.domElement;
+		let width = canvas.clientWidth;
+		let height = canvas.clientHeight;
+
+		// Using HD-DPI can make the application heavier
+		if (Config.renderer.useHDDPI) {
+			const pixelRatio = window.devicePixelRatio;
+			width *= pixelRatio | 0;
+			width *= pixelRatio | 0
+		}
+
+		const needResize = canvas.width !== width || canvas.height !== height;
+		if (needResize) {
+			// Resize the renderer if the screen resizes
+			renderer.setSize(width, height, false);
+
+			// Update the camera resolution
+			camera.aspect = canvas.clientWidth / canvas.clientHeight;
+			camera.updateProjectionMatrix();
+		}
+
+		// Render the frame
+		renderer.render(scene, camera);
+	};
+
+	// Return the objects
+	return {renderer, scene, camera, updateRenderer};
+}
+
 // Helpers when developing. Returns an update function that updates the helpers every frame
-function helpers(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera): () => void {
+function helpers(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera) {
 	const config = Config.helpers;
 	
 	// Show a grid
 	const gridHelper = new THREE.GridHelper(config.gridSize, config.gridSegments);
 	scene.add(gridHelper);
 
-	// Zoom, pan, ...
+	// Zoom, pan, rotate ...
 	const controls = new OrbitControls(camera, renderer.domElement);
 
 	// Return an update function
-	return () => {
+	const updateHelpers = () => {
 		controls.update();
 	};
-}
 
-// Everything to do with lights
-function lights(scene: THREE.Scene) {
-	const config = Config.lights;
-	const ambientLight = new THREE.AmbientLight(config.color);
-	scene.add(ambientLight);
+	return {updateHelpers};
 }
 
 // Function that is being called on every frame
-function animate(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera, updateHelpers: () => void) {
+function animate(updateRenderer: () => void, updateHelpers: () => void, updateObjects: () => void) {
 	// Request next frame, looping this function
-	requestAnimationFrame(() => animate(renderer, scene, camera, updateHelpers));
+	requestAnimationFrame(() => animate(updateRenderer, updateHelpers, updateObjects));
 
 	// Update the objects
-	// ...
+	updateObjects();
 
-	// Update the helpers and the renderer
+	// Update the application
 	updateHelpers();
-	renderer.render(scene, camera);
+	updateRenderer();
 }
 
 function main() {
 	// Check if WebGL is available
 	if (WebGL.isWebGLAvailable()) {
-		// Scene
-		const scene = new THREE.Scene();
-
-		// Camera
-		const camera = new THREE.PerspectiveCamera(Config.camera.fov, window.innerWidth/window.innerHeight, 0.1, 1000);
-		camera.position.set(Config.camera.positionX, Config.camera.positionY, Config.camera.positionZ);
-
-		// Renderer
-		const renderer = new THREE.WebGLRenderer();
-		renderer.setSize(window.innerWidth, window.innerHeight);
-		document.body.appendChild(renderer.domElement);
-
-		// Helpers
-		const updateHelpers: () => void = helpers(renderer, scene, camera);
+		const {renderer, scene, camera, updateRenderer} = init();
+		const {updateHelpers} = helpers(renderer, scene, camera);
 
 		// Adding objects to the scene
-		lights(scene);
-		addRandomStars(scene);
+		const updateLights = lights(scene);
+		const updateStars = RandomStars(scene);
+
+		const geom = new THREE.BoxGeometry(0.5,0.5,0.5,24,24,24);
+		const material = new THREE.MeshStandardMaterial({color: 0xFF0000});
+		const cube = new THREE.Mesh(geom, material);
+		scene.add(cube);
+
+		// Function to update the objects
+		const updateObjects = () => {
+			updateLights();
+			updateStars();
+		};
 
 		// Start animating
-		animate(renderer, scene, camera, updateHelpers);
+		animate(updateRenderer, updateHelpers, updateObjects);
 
 	// WebGL is not available, show an error page
 	} else {

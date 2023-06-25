@@ -1,8 +1,7 @@
 import * as THREE from "three";
 import Config from "../config.json";
 
-// Adding a number of stars to space
-export function addRandomStars(scene: THREE.Scene) {
+export default function RandomStars(scene: THREE.Scene) {
     const config = Config.stars;
 
     // Make the geometry and material once
@@ -20,4 +19,7 @@ export function addRandomStars(scene: THREE.Scene) {
         // Adding the object to the scene
         scene.add(star);
     });
+
+    // Return a function to update the stars every frame
+    return () => {};
 }
